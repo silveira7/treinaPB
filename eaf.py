@@ -7,7 +7,6 @@ import re
 import sys
 
 
-
 class Eaf:
     """Store information about annotation tiers from EAF files"""
     def __init__(self, path):
@@ -221,29 +220,27 @@ class Eaf:
 
     def remove_small_clusters(self):
         """Remove isolated annotations or clusters of annotations that have less than 2 seconds"""
-        reference_tier = list(self.no_gaps.values())
-        annotation_id = list(self.no_gaps.keys())
+        reference_values = list(self.no_gaps.values())
+        annotation_ids = list(self.no_gaps.keys())
+        overlapped_values = list()
+        overlapped_ids = list()
 
         # Meaningful words in place of index number
         begin = 0
         end = 1
         duration = 2
 
-        # Adders for while loop
-        mod1 = 0
-        mod2 = 1
-
-        # Checkers
-        contiguous = False
-        large_enough = False
-
         # Loop with range according to number of annotations of reference tier less four
-        for index in range(len(reference_tier) - 4):
+        for index in range(len(reference_values) - 10):
+            mod1 = 0
+            mod2 = 1
+            contiguous = False
+            large_enough = False
             # Check if annotation finishes where the next begins
-            while reference_tier[index+mod1][end] == reference_tier[index+mod2][begin]:
+            while reference_values[index+mod1][end] == reference_values[index+mod2][begin]:
                 contiguous = True
                 # Check if the annotation and the next together lasts for more than 2 seconds
-                if reference_tier[index+mod2][end] - reference_tier[index][begin] >= 2000:
+                if reference_values[index+mod2][end] - reference_values[index][begin] >= 2000:
                     large_enough = True
                     break
                 else:
@@ -252,28 +249,32 @@ class Eaf:
             # If annotation is not side-by-side to the next
             if not contiguous:
                 # If it lasts for more than 2 seconds, does not do nothing
-                if reference_tier[index][duration] >= 2000:
+                if reference_values[index][duration] >= 2000:
                     continue
                 # If its beginning is the end of the previous annotation, does not do nothing
-                elif reference_tier[index][begin] == reference_tier[index-1][end]:
+                elif reference_values[index][begin] == reference_values[index-1][end]:
                     continue
                 # Else, delete the current annotation from annotation_id and reference_tier lists
                 else:
-                    del reference_tier[index]
-                    del annotation_id[index]
+                    overlapped_values.append(reference_values[index])
+                    overlapped_ids.append(annotation_ids[index])
             # If it's contiguous to the next, but both does not sums up more than 2 seconds
-            if not large_enough:
+            elif not large_enough:
                 # If its beginning is the end of the previous annotation, does not do nothing
-                if reference_tier[index][begin] == reference_tier[index-1][end]:
+                if reference_values[index][begin] == reference_values[index-1][end]:
                     continue
                 # Else, delete current annotation from annotation_id and reference_tier lists
                 else:
-                    del reference_tier[index]
-                    del annotation_id[index]
+                    for x in range(mod2):
+                        overlapped_values.append(reference_values[index+x])
+                        overlapped_ids.append(annotation_ids[index+x])
 
         # Store the remaining annotations in no_small dict
-        for index in range(len(annotation_id)):
-            self.no_smalls[annotation_id[index]] = reference_tier[index]
+        for index in range(len(annotation_ids)):
+            if annotation_ids[index] not in overlapped_ids:
+                self.no_smalls[annotation_ids[index]] = reference_values[index]
+            else:
+                continue
 
     def write_eaf(self, ref_tier_id):
         """Write a new EAF/XML file"""

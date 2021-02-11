@@ -46,11 +46,11 @@ except IndexError:
     sys.exit(1)
 
 file_number = 0
+print('EAF Editor is running:')
 
 for file in eaf_files:
     file_number += 1
     file_index = 'File ' + str(file_number) + ' - '
-    print('EAF Editor is running:')
 
     print('\t' + file_index + 'Reading ' + file + '...')
     filename = Eaf(path=file)
