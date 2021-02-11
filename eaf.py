@@ -6,10 +6,6 @@ import prettify_xml
 import re
 import sys
 
-# TODO: Loading bar
-# TODO: File name with pseudonymn
-# TODO: Integration with phonetic aligner
-# TODO: Insert trys...excepts
 
 
 class Eaf:
@@ -361,7 +357,7 @@ class Eaf:
             pass
 
         # Write the new XML/EAF file using UTF-8 encoding
-        filename = re.split("/", self.path)[-1][:-4] + '_New' + '.xml'
+        filename = re.split("/", self.path)[-1][:-4] + '_New' + '.eaf'
         path = 'eaf_files/' + filename
         if os.path.exists(path):
             print('Error: File' + ' "' + filename + '" ' + 'already exists!')
@@ -369,14 +365,14 @@ class Eaf:
         else:
             self.tree.write(path, encoding="utf-8")
 
-    def extract_audio(self, audio_path):
+    def extract_audio(self, audio_source):
         """Extract and write the WAV file for each annotation and a TXT file with the annotation's content"""
 
         # Import WAV file
-        audio = AudioSegment.from_wav(audio_path)
+        audio = AudioSegment.from_wav(audio_source)
 
         # Create subdir in output for each audio source
-        path = 'media_files/' + re.split("/", audio_path)[-1][:-4]
+        path = 'media_files/' + re.split("/", audio_source)[-1][:-4]
         try:
             os.makedirs(path)
         except FileExistsError:
