@@ -1,4 +1,6 @@
 /.idea
 /eaf_files
 /media_files
+/test_area
+*.pfsx
 *.wav

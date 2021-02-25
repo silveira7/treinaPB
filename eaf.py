@@ -1,10 +1,10 @@
 import os
+import re
+import sys
 from datetime import datetime
 import xml.etree.ElementTree as ElementTree
 from pydub import AudioSegment
 import prettify_xml
-import re
-import sys
 
 
 class Eaf:
@@ -14,10 +14,13 @@ class Eaf:
         self.time_order = {}  # TIME_SLOT_ID: TIME_VALUE
         self.tiers = {}  # ANNOTATION_ID: {TIME_SLOT_REF1, TIME_SLOT_REF2, ANNOTATION_VALUE, ...}
         self.annotations = {}  # Transition variable used only to build tiers dict
-        self.overlapped = {}  # To store annotations of a reference tier that overlaps with annotations of other tiers
+        self.overlapped = {}  # Store annotations of a reference tier that overlaps with annotations of other tiers
         self.not_overlapped = {}  # The opposite of the variable above
-        self.no_gaps = {}  # To store annotations with no gaps when they are in clusters
-        self.no_smalls = {}  # To store only annotations or clusters of annotations with more than a specified duration
+        self.no_gaps = {}  # Store annotations with no gaps when they are in clusters
+        self.no_smalls = {}  # Store only annotations or clusters of annotations with more than a specified duration
+        self.grouped = {}  # Copy from no_small, but with added information of group membership of each annotation
+        self.groups = {}  # Store information about groups of annotations
+        self.big_groups = []  # Store the IDs of big groups
 
         # Get the XML structure and store it in root
         self.tree = ElementTree.parse(path)
@@ -137,9 +140,13 @@ class Eaf:
 
     def remove_gaps(self, reference):
         """Remove gaps between annotations that form a cluster"""
-        reference_tier = list(self.not_overlapped.values())  # Store list of attributes of not overlapped annotations
-        annotation_id = list(self.not_overlapped.keys())  # Store list of IDs of not overlapped annotations
-        other_tiers_begins = list()  # To store the begin time of all annotations of the others tiers (not ref tier)
+
+        # Store list of attributes of not overlapped annotations
+        reference_tier = list(self.not_overlapped.values())
+        # Store list of IDs of not overlapped annotations
+        annotation_id = list(self.not_overlapped.keys())
+        # To store the begin time of all annotations of the others tiers (not ref tier)
+        other_tiers_begins = list()
 
         # Use of meaningful words in place of numerical index
         begin = 0
@@ -240,7 +247,7 @@ class Eaf:
             while reference_values[index+mod1][end] == reference_values[index+mod2][begin]:
                 contiguous = True
                 # Check if the annotation and the next together lasts for more than 2 seconds
-                if reference_values[index+mod2][end] - reference_values[index][begin] >= 2000:
+                if reference_values[index+mod2][end] - reference_values[index][begin] >= 4000:
                     large_enough = True
                     break
                 else:
@@ -249,7 +256,7 @@ class Eaf:
             # If annotation is not side-by-side to the next
             if not contiguous:
                 # If it lasts for more than 2 seconds, does not do nothing
-                if reference_values[index][duration] >= 2000:
+                if reference_values[index][duration] >= 4000:
                     continue
                 # If its beginning is the end of the previous annotation, does not do nothing
                 elif reference_values[index][begin] == reference_values[index-1][end]:
@@ -366,6 +373,175 @@ class Eaf:
         else:
             self.tree.write(path, encoding="utf-8")
 
+    def create_grouped(self):
+        """Create groups of annotations with duration ranging between four and eight seconds"""
+        no_smalls_copy = dict()
+        no_smalls_list = list()
+
+        # Create a copy of no_small dict
+        for key, value in self.no_smalls.items():
+            no_smalls_copy[key] = value.copy()
+
+        # Turn the copy into nested lists
+        for key, value in no_smalls_copy.items():
+            value.insert(0, key)
+            no_smalls_list.append(value.copy())
+
+        # Variables created only to make the following loop more readable
+        begin = 1
+        end = 2
+        group_num = 0
+
+        for annotation in no_smalls_list:
+            # If annotation is the first of the list
+            if annotation == no_smalls_list[0]:
+                # Store the next annotation parameters
+                next_annotation = no_smalls_list[no_smalls_list.index(annotation) + 1]
+                # If current annotation's end matches next annotation's begin
+                if annotation[end] == next_annotation[begin]:
+                    # Insert group_num in the 2nd position
+                    annotation.insert(1, group_num)
+                # Else, insert the value 'Isolated' and do not update group_num
+                # since it was not used for current annotation
+                else:
+                    annotation.insert(1, 'Isolated')
+            # If annotation is the last of the list
+            elif annotation == no_smalls_list[-1]:
+                # Store the previous annotation parameters
+                previous_annotation = no_smalls_list[no_smalls_list.index(annotation) - 1]
+                # If current annotation's begin matches previous annotation's end
+                if annotation[begin] == previous_annotation[end + 1]:
+                    # Insert group_num in 2nd position
+                    annotation.insert(1, group_num)
+                # Else, insert the value 'Isolated' and do not update group_num
+                else:
+                    annotation.insert(1, 'Isolated')
+            # If annotation is not the first nor the last
+            else:
+                # Stores the previous annotation's parameters
+                previous_annotation = no_smalls_list[no_smalls_list.index(annotation) - 1]
+                # Stores the next annotation's parameters
+                next_annotation = no_smalls_list[no_smalls_list.index(annotation) + 1]
+                # If current annotation's end matches next annotation's begin
+                if annotation[end] == next_annotation[begin]:
+                    # Insert group_num in 2nd position
+                    annotation.insert(1, group_num)
+                # If current annotation's begin matches previous annotation's end
+                elif annotation[begin] == previous_annotation[end + 1]:
+                    # Insert group_num in 2nd position
+                    annotation.insert(1, group_num)
+                    # Update group_num since the annotation is the last of the current group
+                    group_num += 1
+                # Else, insert 'Isolated' and do not update group_num
+                else:
+                    annotation.insert(1, 'Isolated')
+
+        # Turn no_smalls_list into a dictionary with the same organization as no_smalls_dicts
+        # but with added information of group membership for each annotation
+        # {annotation_id: [group_id, begin, end, duration, transcription]}
+        for annotation in no_smalls_list:
+            self.grouped[annotation[0]] = annotation[1:]
+
+    def create_groups(self):
+        """Create dict that stores information about groups of annotations"""
+        ids = set()  # Stores group IDs
+
+        # Create a set of all group IDs
+        for value in self.grouped.values():
+            ids.add(value[0])
+
+        # Create the structure of groups dict: {id_number: [ duration, [annotations' IDs] ]}
+        for id_number in ids:
+            self.groups[id_number] = [0, []]
+
+        # Stores group information in groups dict
+        for key, value in self.grouped.items():
+            for key_1, value_1 in self.groups.items():
+                if value[0] == key_1:
+                    value_1[0] += value[3]
+                    value_1[1].append(key)
+
+    def slipt(self):
+        """Split groups larger than 12 seconds into two smaller groups"""
+
+        # big_groups = list()  # Stores the IDs of big groups (larger than 12 seconds)
+        split = False  # Boolean variable to check if annotation was split or not
+        new_group_duration = None  # Temp. variable to store the duration of the new group
+        annotations = list()   # Temp. variable to store the annotations' ID of th
+
+        # Variables to make the following code more readable
+        begin = 1
+        end = 2
+
+        # Loop to split big groups
+        for each_big_group in self.big_groups:
+            # For each big group, loop into all groups
+            for group_id, parameters in self.groups.items():
+                # If current big group matches the group in groups dict
+                if each_big_group == group_id:
+                    x = 1  # Index to loop into annotations that are members of current big group
+                    # Loop into current big group's annotations until the sum of their durations reach 8 seconds
+                    # or until reach the last annotation
+                    while x < len(parameters[1]) and \
+                            self.grouped[parameters[1][x]][end] - self.grouped[parameters[1][0]][begin] < 8000:
+                        x += 1
+                    # If reach 8 seconds
+                    if x < len(parameters[1]):
+                        # Set split as true, clear annotations list and
+                        split = True
+                        annotations = list()
+                        # Store the joint duration of the remaining annotations (those that was
+                        # no considered in previous while loop)
+                        new_group_duration = self.grouped[
+                                                 parameters[1][len(parameters[1]) - 1]
+                                             ][end] - self.grouped[parameters[1][x]][begin]
+                        # Insert each remaining annotation into regrouped_annotations
+                        while x < len(parameters[1]):
+                            annotations.append(parameters[1][x])
+                            x += 1
+                        # For each regrouped annotation
+                        for annotation in annotations:
+                            # Remove it from its original group
+                            self.groups[group_id][1].remove(annotation)
+                            # Update its group ID in grouped dict
+                            self.grouped[annotation][0] = str(each_big_group) + "A"
+                        # Update the duration of the original group since it was split
+                        self.groups[group_id][0] = self.groups[group_id][0] - new_group_duration
+                    else:
+                        continue
+                else:
+                    continue
+            # If current group was split, insert the group's information in groups dict
+            if split:
+                self.groups[str(each_big_group) + "A"] = [new_group_duration, annotations]
+                split = False
+
+    def split_iter(self):
+        """Iterates split function until there is no more big groups"""
+        self.create_grouped()
+        self.create_groups()
+
+        while True:
+            # Check if there is at least one group that lasts more than 12 seconds
+            for key, value in self.groups.items():
+                if key != "Isolated" and value[0] > 8000:
+                    if (value[0] - 8000) > 4000:
+                        self.big_groups.append(key)
+                else:
+                    continue
+            # If there isn't, stop the loop
+            if not self.big_groups:
+                break
+            # Else (if there is), run split function
+            else:
+                self.slipt()
+                self.big_groups = list()  # Clear big_groups list before running the next loop
+
+    def get_number_of_groups(self):
+        """Return the number of groups"""
+        number = len(self.groups)
+        return number
+
     def extract_audio(self, audio_source):
         """Extract and write the WAV file for each annotation and a TXT file with the annotation's content"""
 
@@ -373,22 +549,47 @@ class Eaf:
         audio = AudioSegment.from_wav(audio_source)
 
         # Create subdir in output for each audio source
-        path = 'media_files/' + re.split("/", audio_source)[-1][:-4]
+        path = 'media_files'
         try:
             os.makedirs(path)
         except FileExistsError:
-            print('Error: The directory' + ' "' + path + '" ' + 'already exists!')
-            sys.exit(1)
+            pass
+
+        # Variables to make code more readable
+        group_id = 0
+        begin = 1
+        end = 2
+        content = 4
+
+        # Set the path to the audio
+        source_name = re.split('/', audio_source)[-1][:-4]
 
         # Slice and write the WAV file for each annotation
-        for key, value in self.no_smalls.items():
-            audio_cut = audio[value[0]:value[1]]
-            filename = str(key) + "_" + str(value[0]) + "_" + str(value[1]) + "_" + str(value[2]) + ".wav"
-            audio_cut.export(path + "/" + filename, format='wav')
+        for annotation_id, parameter in self.grouped.items():
+            # Slice the interval of the annotation
+            audio_cut = audio[parameter[begin]:parameter[end]]
+            # Convert stereo to mono
+            audio_cut = audio_cut.set_channels(1)
+            # Set sampling rate to 16.000 Hz (the default for HTK models)
+            audio_cut = audio_cut.set_frame_rate(16000)
+            # Define the name of the audio file
+            filename = source_name + "_" \
+                + str(parameter[group_id]) + "_" \
+                + str(annotation_id) + "_" \
+                + str(parameter[begin]) + "_" \
+                + str(parameter[end]) + ".wav"
+            # Export the audio as WAV using PCM signed 16-bit little-endian (ffmpeg)
+            audio_cut.export(path + "/" + filename, format='wav', codec='pcm_s16le')
 
         # Write a TXT file for each annotation, with the annotation content
-        for key, value in self.no_smalls.items():
-            filename = str(key) + "_" + str(value[0]) + "_" + str(value[1]) + "_" + str(value[2]) + ".txt"
+        for annotation_id, parameter in self.grouped.items():
+            # Define the name of the transcription file
+            filename = source_name + "_" \
+                + str(parameter[group_id]) + "_" \
+                + str(annotation_id) + "_" \
+                + str(parameter[begin]) + "_" \
+                + str(parameter[end]) + ".lab"
+            # Write the transcription file in the same folder
             file_created = open(path + "/" + filename, "w")
-            file_created.write(value[3])
+            file_created.write(parameter[content].lower())
             file_created.close()
