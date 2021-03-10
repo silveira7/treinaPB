@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ANNOTATION_DOCUMENT AUTHOR="" DATE="2019-05-12T22:32:50-03:00" FORMAT="3.0" VERSION="3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.mpi.nl/tools/elan/EAFv3.0.xsd">
     <HEADER MEDIA_FILE="" TIME_UNITS="milliseconds">
-        <MEDIA_DESCRIPTOR MEDIA_URL="file:///C:/Users/GESOL/Desktop/SARAH/ALCP_2018MB-_RicardoR.wav" MIME_TYPE="audio/x-wav" RELATIVE_MEDIA_URL="./ALCP_2018MB-_RicardoR.wav"/>
+        <MEDIA_DESCRIPTOR MEDIA_URL="" MIME_TYPE="audio/x-wav" RELATIVE_MEDIA_URL="./sample.wav"/>
         <PROPERTY NAME="URN">urn:nl-mpi-tools-elan-eaf:dba9fbe8-fe1f-4a9d-834c-2f475e0d898a</PROPERTY>
         <PROPERTY NAME="lastUsedAnnotationId">1458</PROPERTY>
     </HEADER>

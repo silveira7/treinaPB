@@ -504,7 +504,7 @@ class Eaf:
                             # Remove it from its original group
                             self.groups[group_id][1].remove(annotation)
                             # Update its group ID in grouped dict
-                            self.grouped[annotation][0] = str(each_big_group) + "A"
+                            self.grouped[annotation][0] = len(self.groups) + 1
                         # Update the duration of the original group since it was split
                         self.groups[group_id][0] = self.groups[group_id][0] - new_group_duration
                     else:
@@ -513,7 +513,7 @@ class Eaf:
                     continue
             # If current group was split, insert the group's information in groups dict
             if split:
-                self.groups[str(each_big_group) + "A"] = [new_group_duration, annotations]
+                self.groups[len(self.groups) + 1] = [new_group_duration, annotations, each_big_group]
                 split = False
 
     def split_iter(self):
@@ -574,7 +574,7 @@ class Eaf:
             audio_cut = audio_cut.set_frame_rate(16000)
             # Define the name of the audio file
             filename = source_name + "_" \
-                + str(parameter[group_id]) + "_" \
+                + str(parameter[group_id]).zfill(3) + "_" \
                 + str(annotation_id) + "_" \
                 + str(parameter[begin]) + "_" \
                 + str(parameter[end]) + ".wav"
@@ -585,7 +585,7 @@ class Eaf:
         for annotation_id, parameter in self.grouped.items():
             # Define the name of the transcription file
             filename = source_name + "_" \
-                + str(parameter[group_id]) + "_" \
+                + str(parameter[group_id]).zfill(3) + "_" \
                 + str(annotation_id) + "_" \
                 + str(parameter[begin]) + "_" \
                 + str(parameter[end]) + ".lab"

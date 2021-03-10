@@ -4,3 +4,5 @@
 /test_area
 *.pfsx
 *.wav
+eaf-tools.sh
+test_run.py
