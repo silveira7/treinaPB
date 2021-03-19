@@ -36,9 +36,17 @@ for file in lab_files:
             opened_file.write(changed_lines)
 
 # If the transcription file is empty, delete it and its matching audio
-for file in files_list:
+for file in lab_files:
     if os.stat(file)[6] == 0:
-        os.remove(file)
-        os.remove(file[:-4] + ".wav")
+        if os.path.exists(file):
+            os.remove(file)
+            print(f"{file} deleted.")
+        else:
+            print(f"{file} not found.")
+        if os.path.exists(file[:-4] + ".wav"):
+            os.remove(file[:-4] + ".wav")
+            print(f"{file[:-4]}.wav deleted.")
+        else:
+            print(f"{file[:-4]} not found.")
 
 print("Concluded!")
