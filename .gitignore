@@ -1,8 +1,11 @@
 /.idea
+/.mypy_cache
 /eaf_files
 /media_files
 /test_area
 *.pfsx
 *.wav
+*.lab
+*.TextGrid
 eaf-tools.sh
 test_run.py

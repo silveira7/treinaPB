@@ -14,7 +14,7 @@ def organize(folder):
 
     for path in p.iterdir():
         if path.is_file():
-            if path.match('*merged.TextGrid'):
+            if path.match('*merged.TextGrid') or path.match('*Isolated*'):
                 speaker = path.stem.split(sep='_')[2]
                 p_speaker = p_final / f'{speaker}'
                 p_speaker.mkdir(exist_ok=True)

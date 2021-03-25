@@ -24,9 +24,9 @@ for file in list(files_list):
 for file in lab_files:
     with open(file, 'r') as opened_file:
         lines = opened_file.readline()
-    if re.search(r'{.*}|xxx|\(xxx\)|"|\(|\)|/|\?|\.|,|-|<.*>', lines):
+    if re.search(r'{.*}|xxx|tsc|\bcd\b|\(xxx\)|"|\(|\)|/|\?|\.|,|-|\'|<.*>|!|\|', lines):
         changed_lines = re.sub(
-            r'{.*}|\(xxx\)|xxx|"|^ *| *$|\(*|\)*|/*|\\*|\?*|\.*|,*|!*|<.*>', r'',
+            r'{.*}|\(xxx\)|xxx|tsc|"|^ *| *$|\(*|\)*|/*|\\*|\?*|\.*|,*|!*|\'|<.*>|!|\|', r'',
             lines)
         changed_lines = re.sub(r' {2}', r' ', changed_lines)
         changed_lines = re.sub(r'-', r' ', changed_lines)

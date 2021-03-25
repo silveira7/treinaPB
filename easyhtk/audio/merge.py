@@ -7,7 +7,7 @@ import re
 import sys
 from pydub import AudioSegment
 
-folder = sys.argv[1]
+folder = '/home/gustavo/Drive/Universidade/Dados/Projeto_Acomodacao/ALCP/media_files/'
 
 os.chdir(folder)
 

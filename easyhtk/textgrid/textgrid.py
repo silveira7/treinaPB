@@ -4,6 +4,7 @@
 
 import re
 import os
+import sys
 
 
 class TextGrid:
@@ -14,10 +15,16 @@ class TextGrid:
         # Store the folder
         self.folder = folder
 
+        print('Getting list of files')
         # Store the name of all files .TextGrid
         text_grids = sorted(os.listdir(self.folder))
-        self.files = [file for file in text_grids
-                      if re.search(r'.TextGrid', file)]
+
+        self.files = []
+
+        print('Getting list of TextGrid files')
+        for file in text_grids:
+            if 'TextGrid' in file and 'merged' not in file:
+                self.files.append(file)
 
         # Dict to store the content of each TextGrid
         self.data = dict()
@@ -36,34 +43,39 @@ class TextGrid:
         #         List of the name of files of the group
         # This loop
         for file in self.files:
-            # Get the first four information of file name (corpus, social profile, speaker's name and group ID)
-            # and store it as a string with underscores
-            speaker = "_".join(file.split(sep='_')[:3])
-            # Store the group ID
-            group = file.split(sep='_')[3]
-            # If the speaker of current file is not yet in self.data...
-            if speaker not in self.data.keys():
-                # Add speaker to data
-                self.data[speaker] = {group: [file]}
-                # And to final_tg
-                self.final_tg[speaker] = {group: []}
-            # If speaker of current file is already in data...
-            else:
-                # If the group of current file is not in the groups of speaker
-                if group not in self.data[speaker].keys():
-                    # Add the group to the groups of speaker
-                    self.data[speaker][group] = [file]
-                    self.final_tg[speaker][group] = []
-                # If the group is already in the groups of speaker
-                # just append the current file to the files of the group
+            print(f'Getting info from name of {file}')
+            if 'Isolated' not in file:
+                print('Condition not isolated: OK')
+                # Get the first four information of file name (corpus, social profile, speaker's name and group ID)
+                # and store it as a string with underscores
+                speaker = "_".join(file.split(sep='_')[:3])
+                # Store the group ID
+                group = file.split(sep='_')[3]
+                # If the speaker of current file is not yet in self.data...
+                if speaker not in self.data.keys():
+                    # Add speaker to data
+                    self.data[speaker] = {group: [file]}
+                    # And to final_tg
+                    self.final_tg[speaker] = {group: []}
+                # If speaker of current file is already in data...
                 else:
-                    self.data[speaker][group].append(file)
+                    # If the group of current file is not in the groups of speaker
+                    if group not in self.data[speaker].keys():
+                        # Add the group to the groups of speaker
+                        self.data[speaker][group] = [file]
+                        self.final_tg[speaker][group] = []
+                    # If the group is already in the groups of speaker
+                    # just append the current file to the files of the group
+                    else:
+                        self.data[speaker][group].append(file)
 
         attrib = []  # Ex.: ['2', '0.12', '0.17', 'p']
         intervals = []  # Ex.: [['1', '0.0', '0.12', 'sil'], ['2', '0.12', '0.17', 'p'], ...]
         tiers = []  # A list with two intervals like above
         # For each file in each group of each speaker...
         for speaker in self.data.copy().keys():
+            print('Getting info from content of files')
+            print(speaker)
             xmax = 0
             for group in self.data.copy()[speaker]:
                 for file in self.data.copy()[speaker][group]:
@@ -90,10 +102,10 @@ class TextGrid:
                             for index, line in enumerate(tier):
                                 # For each interval
                                 if re.search(r'intervals \[', line):
-                                    attrib.append(line[14:-3])  # Interval number
-                                    attrib.append(tier[index + 1][11:-1])  # Begin time
-                                    attrib.append(tier[index + 2][11:-1])  # End time
-                                    attrib.append(tier[index + 3][12:-2])  # Text
+                                    attrib.append(re.search(r'\d+', line).group())  # Interval number
+                                    attrib.append(re.search(r'\d+\.\d+', tier[index + 1]).group())  # Begin time
+                                    attrib.append(re.search(r'\d+\.\d+', tier[index + 2]).group())  # End time
+                                    attrib.append(re.search(r'\".*\"', tier[index+3]).group()[1:-1])  # Text
                                     # Example of attrib: ['2', '0.12', '0.17', 'p']
                                     intervals.append(attrib)  # Append attrib list to intervals list
                                     attrib = []  # Clear attrib list
@@ -125,6 +137,8 @@ class TextGrid:
                 x = 1  # Variable to update interval number of 1st tier
                 y = 1  # Variable to update interval number of 2nd tier
                 for file in self.data.copy()[speaker][group]:
+                    print('Building TextGrid')
+                    print(speaker, group, file)
                     for index, tier in enumerate(file):
                         # print(index, tier)
 
@@ -209,3 +223,7 @@ class TextGrid:
                 final_file.write(final)
                 final_file.close()
                 final = ''
+
+                if os.stat(self.folder + "/" + speaker + "_" + group + '_merged.TextGrid')[6] > 10**6:
+                    print("File is too large")
+                    sys.exit(1)
