@@ -3,6 +3,8 @@
 /eaf_files
 /media_files
 /test_area
+/test
+/resources
 *.pfsx
 *.wav
 *.lab
