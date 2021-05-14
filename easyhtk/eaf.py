@@ -1,17 +1,16 @@
-import os
-import re
-import sys
 from datetime import datetime
 import xml.etree.ElementTree as ElementTree
 from pydub import AudioSegment
-import prettify_xml
+import pretty_xml
 
 
 class Eaf:
     """Store information about annotation tiers from EAF files"""
     def __init__(self, path):
-        self.path = path  # Path to the eaf/xml file
-        self.time_order = {}  # TIME_SLOT_ID: TIME_VALUE
+        # Path to the eaf/xml file
+        self.path = path
+        # TIME_SLOT_ID: TIME_VALUE
+        self.time_order = {}
         self.tiers = {}  # ANNOTATION_ID: {TIME_SLOT_REF1, TIME_SLOT_REF2, ANNOTATION_VALUE, ...}
         self.annotations = {}  # Transition variable used only to build tiers dict
         self.overlapped = {}  # Store annotations of a reference tier that overlaps with annotations of other tiers
@@ -86,6 +85,11 @@ class Eaf:
         selected_tiers = []  # To store the selected tier from reference_tier and exceptions
         temp = {}  # Transitory variable to build the intervals dict
         intervals = {}  # {each tier: {begin: end, begin: end, ...}}
+
+        for exception in exceptions:
+            if exception not in self.tiers.keys():
+
+                raise NameError(f"name {exception} is not defined")
 
         # Store in a list the name of the tiers selected by the user
         for tier in self.tiers.keys():
@@ -356,22 +360,16 @@ class Eaf:
                 'ANNOTATION_VALUE').text = reference_tier[index][3]
 
         # Fix the format of the new XML/EAF code
-        prettify_xml.indent(self.root)
+        pretty_xml.indent(self.root)
 
         # Create directory for eaf files
-        try:
-            os.mkdir('eaf_files')
-        except FileExistsError:
-            pass
+        eaf_folder = self.path.parent / "eaf_files/"
+        eaf_folder.mkdir(exist_ok=True)
 
         # Write the new XML/EAF file using UTF-8 encoding
-        filename = re.split("/", self.path)[-1][:-4] + '_New' + '.eaf'
-        path = 'eaf_files/' + filename
-        if os.path.exists(path):
-            print('Error: File' + ' "' + filename + '" ' + 'already exists!')
-            sys.exit(1)
-        else:
-            self.tree.write(path, encoding="utf-8")
+        new_eaf_name = self.path.stem + "_HTK.eaf"
+        new_eaf_path = eaf_folder / new_eaf_name
+        self.tree.write(new_eaf_path, encoding="utf-8")
 
     def create_grouped(self):
         """Create groups of annotations with duration ranging between four and eight seconds"""
@@ -526,7 +524,8 @@ class Eaf:
             for key, value in self.groups.items():
                 if key != "Isolated" and value[0] > 8000:
                     if (value[0] - 8000) > 4000:
-                        self.big_groups.append(key)
+                        if len(value[1]) > 1:
+                            self.big_groups.append(key)
                 else:
                     continue
             # If there isn't, stop the loop
@@ -549,20 +548,14 @@ class Eaf:
         audio = AudioSegment.from_wav(audio_source)
 
         # Create subdir in output for each audio source
-        path = 'media_files'
-        try:
-            os.makedirs(path)
-        except FileExistsError:
-            pass
+        chunks_directory = audio_source.parent / "chunks"
+        chunks_directory.mkdir(exist_ok=True)
 
         # Variables to make code more readable
         group_id = 0
         begin = 1
         end = 2
         content = 4
-
-        # Set the path to the audio
-        source_name = re.split('/', audio_source)[-1][:-4]
 
         # Slice and write the WAV file for each annotation
         for annotation_id, parameter in self.grouped.items():
@@ -573,23 +566,17 @@ class Eaf:
             # Set sampling rate to 16.000 Hz (the default for HTK models)
             audio_cut = audio_cut.set_frame_rate(16000)
             # Define the name of the audio file
-            filename = source_name + "_" \
+            chunk_filename = audio_source.stem + "_" \
                 + str(parameter[group_id]).zfill(3) + "_" \
-                + str(annotation_id) + "_" \
+                + str(annotation_id[1:].zfill(4)) + "_" \
                 + str(parameter[begin]) + "_" \
-                + str(parameter[end]) + ".wav"
-            # Export the audio as WAV using PCM signed 16-bit little-endian (ffmpeg)
-            audio_cut.export(path + "/" + filename, format='wav', codec='pcm_s16le')
+                + str(parameter[end])
+            chunk_path = chunks_directory / chunk_filename
 
-        # Write a TXT file for each annotation, with the annotation content
-        for annotation_id, parameter in self.grouped.items():
-            # Define the name of the transcription file
-            filename = source_name + "_" \
-                + str(parameter[group_id]).zfill(3) + "_" \
-                + str(annotation_id) + "_" \
-                + str(parameter[begin]) + "_" \
-                + str(parameter[end]) + ".lab"
-            # Write the transcription file in the same folder
-            file_created = open(path + "/" + filename, "w")
+            # Export the audio as WAV using PCM signed 16-bit little-endian (ffmpeg)
+            audio_cut.export(chunk_path.with_suffix('.wav'), format='wav', codec='pcm_s16le')
+
+            # Export .lab file
+            file_created = open(chunk_path.with_suffix('.lab'), "w")
             file_created.write(parameter[content].lower())
             file_created.close()
