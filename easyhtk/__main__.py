@@ -1,8 +1,11 @@
+#!/usr/bin/env python3
+
 import sys
 from pathlib import Path
 import time
 from eaf import Eaf
 
+# TODO Fazer a checagem dos argumentos antes de processar os áudios
 
 start_time = time.time()
 
@@ -68,7 +71,6 @@ for file in eaf_files:
     print(file.name + ' - Exporting media file...')
     wav_file = file.with_suffix('.wav')
     try:
-        pass
         eaf.extract_audio(wav_file)
     except FileNotFoundError:
         print("Error 6: Cannot find " + wav_file.name)

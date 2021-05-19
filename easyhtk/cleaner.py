@@ -1,52 +1,96 @@
-#!/usr/bin/env python3
-
-"""This module removes non-words from the .lab files"""
-
-import os
-import sys
+from pathlib import Path
+import string
 import re
+import enchant
+import json
 
-# Current working directory must have a list of .lab files
-os.chdir(sys.argv[1])
+br = enchant.Dict('pt_BR')
 
-# Store a list with the name of the files of current folder
-files_list = os.listdir(os.getcwd())
 
-# List for .lab files
-lab_files = list()
+def get_labs(input_dir):
+    labs = list(Path(input_dir).glob('*.lab'))
+    return labs
 
-# Store in lab_files only files with .lab
-for file in list(files_list):
-    if re.search(r'\.lab', file):
-        lab_files.append(file)
 
-# For each .lab file, open it, clean it and overwrite the original version
-for file in lab_files:
-    with open(file, 'r') as opened_file:
-        lines = opened_file.readline()
-    if re.search(r'{.*}|xxx|tsc|\bcd\b|\(xxx\)|"|\(|\)|/|\?|\.|,|-|\'|<.*>|!|\|', lines):
-        changed_lines = re.sub(
-            r'{.*}|\(xxx\)|xxx|tsc|"|^ *| *$|\(*|\)*|/*|\\*|\?*|\.*|,*|!*|\'|<.*>|!|\|', r'',
-            lines)
-        changed_lines = re.sub(r' {2}', r' ', changed_lines)
-        changed_lines = re.sub(r'-', r' ', changed_lines)
-        changed_lines = re.sub(r'\bcd\b', r'cedê', changed_lines)
-        changed_lines = re.sub(r'c\b', r'que', changed_lines)
-        with open(file, 'w') as opened_file:
-            opened_file.write(changed_lines)
+def delete_empties(labs, input_dir):
+    """Delete groups with empty labs"""
+    for lab in list(labs):
+        if lab.stat().st_size == 0:
+            group_id = '_'.join(lab.name.split(sep='_')[0:2])
+            group_files = list(Path(input_dir).glob(f'{group_id}*'))
+            for file in list(group_files):
+                file.unlink(missing_ok=True)
+                if file in labs:
+                    labs.remove(file)
 
-# If the transcription file is empty, delete it and its matching audio
-for file in lab_files:
-    if os.stat(file)[6] == 0:
-        if os.path.exists(file):
-            os.remove(file)
-            print(f"{file} deleted.")
+
+def clean(labs):
+    """Clean trascriptions in labs"""
+    for lab in labs:
+        with open(lab, 'r') as open_file:
+            lines = open_file.readlines()
+
+        # Check if there is more than one line
+        if len(lines) > 1:
+            raise Exception(f'Error: The file {lab.name} has more than one line of text.')
+
+        # Remove punctations
+        cleaned_string = lines[0].translate(str.maketrans('', '', string.punctuation))
+
+        # Remove marginal whitespaces
+        cleaned_string = cleaned_string.strip()
+
+        # Remove duplicate whitespaces
+        cleaned_string = re.sub(' +', ' ', cleaned_string)
+
+        # Write cleaned file
+        with open(lab, 'w') as opened_file:
+            opened_file.write(cleaned_string)
+
+
+def check_words(labs):
+    blank_files = []
+    non_words = {}
+    non_words_path = []
+    for lab in labs:
+        with open(lab, 'r') as open_file:
+            line = open_file.readline()
+
+        # Check if all words are Brazilian words
+        word_list = line.split(sep=' ')
+
+        for word in word_list:
+            try:
+                if not br.check(word.strip()):
+                    non_words[lab.name] = word
+                    if lab not in non_words_path:
+                        non_words_path.append(lab)
+            except ValueError:
+                blank_files.append(lab.name)
+                break
+    return {'non-words': non_words, 'blank files': blank_files}
+
+
+def export_files(non_words, blank_files, output_dir):
+    # Write json with info about files with non-words
+    non_words_json = json.dumps(non_words, indent=4)
+    empty_files_json = json.dumps(blank_files, indent=4)
+    new_files_path = Path(output_dir)
+
+    with open(new_files_path / "non_words.json", 'w') as opened_file:
+        opened_file.write(non_words_json)
+
+    with open(new_files_path / "blank_files.json", 'w') as opened_file:
+        opened_file.write(empty_files_json)
+
+
+def remove_non_words(labs_path, input_dir):
+    # Remove groups with non-words
+    for file in labs_path:
+        if 'Isolated' in file.name:
+            group_id = '_'.join(file.name.split(sep='_')[0:5])
         else:
-            print(f"{file} not found.")
-        if os.path.exists(file[:-4] + ".wav"):
-            os.remove(file[:-4] + ".wav")
-            print(f"{file[:-4]}.wav deleted.")
-        else:
-            print(f"{file[:-4]} not found.")
-
-print("Concluded!")
+            group_id = '_'.join(file.name.split(sep='_')[0:4])
+        group_files = list(Path(input_dir).glob(f'{group_id}*'))
+        for group_file in group_files:
+            group_file.unlink(missing_ok=True)

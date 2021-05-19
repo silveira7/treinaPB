@@ -8,7 +8,7 @@ def import_textgrids(folder):
     files = sorted(os.listdir(folder))
     textgrids = []
     for file in files:
-        if ".TextGrid" in file:
+        if ".TextGrid" in file and 'Isolated' not in file:
             textgrids.append(file)
     return textgrids
 
@@ -266,7 +266,7 @@ def merge_textgrids(data):
 
 
 
-path = '/home/gustavo/Drive/Repositorios/speech-align-tools/test/'
+path = '/home/gustavo/Drive/Universidade/Dados/Projeto_Acomodacao/ALCP/media_files/'
 
 tgs = import_textgrids(path)
 

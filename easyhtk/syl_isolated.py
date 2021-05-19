@@ -11,8 +11,9 @@ def create_vv_tier(folder):
     files = sorted(os.listdir(folder))
 
     for file in files:
-        if 'Isolated' in file and '.TextGrid' in file:
-            print(file)
+        print(file)
+        if 'merged.TextGrid' in file:
+
             # Import TextGrid
             with open(file) as opened_file:
                 tg = opened_file.readlines()
@@ -156,4 +157,4 @@ def create_vv_tier(folder):
             new_tg.close()
 
 
-create_vv_tier('/home/gustavo/Drive/Universidade/Dados/Projeto_Acomodacao/ALCP/media_files/final/isolat/')
+create_vv_tier('/home/gustavo/Drive/Universidade/Dados/Projeto_Acomodacao/ALCP/media_files/')

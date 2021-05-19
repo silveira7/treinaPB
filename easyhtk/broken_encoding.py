@@ -42,3 +42,6 @@ def fix_encoding(folder):
         new_file = open(tg_file, 'w')
         new_file.write(new_tg)
         new_file.close()
+
+
+fix_encoding('/home/gustavo/Drive/Universidade/Dados/Projeto_Acomodacao/ALCP/media_files/')

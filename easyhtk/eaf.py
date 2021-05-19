@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from datetime import datetime
 import xml.etree.ElementTree as ElementTree
 from pydub import AudioSegment
@@ -7,10 +9,8 @@ import pretty_xml
 class Eaf:
     """Store information about annotation tiers from EAF files"""
     def __init__(self, path):
-        # Path to the eaf/xml file
-        self.path = path
-        # TIME_SLOT_ID: TIME_VALUE
-        self.time_order = {}
+        self.path = path  # Path to the eaf/xml file
+        self.time_order = {}  # TIME_SLOT_ID: TIME_VALUE
         self.tiers = {}  # ANNOTATION_ID: {TIME_SLOT_REF1, TIME_SLOT_REF2, ANNOTATION_VALUE, ...}
         self.annotations = {}  # Transition variable used only to build tiers dict
         self.overlapped = {}  # Store annotations of a reference tier that overlaps with annotations of other tiers
@@ -88,7 +88,7 @@ class Eaf:
 
         for exception in exceptions:
             if exception not in self.tiers.keys():
-
+                print(f"=> {exception}")
                 raise NameError(f"name {exception} is not defined")
 
         # Store in a list the name of the tiers selected by the user

@@ -227,3 +227,9 @@ class TextGrid:
                 if os.stat(self.folder + "/" + speaker + "_" + group + '_merged.TextGrid')[6] > 10**6:
                     print("File is too large")
                     sys.exit(1)
+
+
+tg = TextGrid('/home/gustavo/Drive/Universidade/Dados/Projeto_Acomodacao/ALCP/media_files/')
+
+tg.get_metadata()
+tg.build_tg()

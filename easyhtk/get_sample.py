@@ -7,11 +7,11 @@ from pathlib import Path
 import random
 
 
-p = Path('/home/gustavo/Drive/Universidade/Dados/Projeto_Acomodacao/ALCP/media_files/final/')
+p = Path('/home/gustavo/Documentos/Corpora/ALCP/Chunks/')
 n_choices = int(10)
 
 for speaker_folder in p.iterdir():
-    selection_path = speaker_folder / 'selection'
+    selection_path = speaker_folder / 'Selection'
     selection_path.mkdir(exist_ok=True)
 
     uniques = []
@@ -21,7 +21,7 @@ for speaker_folder in p.iterdir():
 
     selection = random.sample(uniques, k=n_choices)
 
-    suffixes = ['.TextGrid', '.wav', '.lab']
+    suffixes = ['.TextGrid', '.wav']
 
     for file in selection:
         if 'Isolated' in file.stem:

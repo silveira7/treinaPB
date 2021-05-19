@@ -3,19 +3,6 @@ import re
 from pydub import AudioSegment
 
 
-def rename_ids(path):
-    os.chdir(path)
-    files = sorted(os.listdir(path))
-    for file in files:
-        if re.search(r'_a\d+_', file):
-            file_parts = file.split(sep="_")
-            new_group_id = file_parts[4][1:].zfill(3)
-            begin = '_'.join(file_parts[:4])
-            end = '_'.join(file_parts[5:])
-            new_file_name = f'{begin}_{new_group_id}_{end}'
-            os.rename(file, new_file_name)
-
-
 def get_tg(path):
     files = sorted(os.listdir(path))
     tg = []
@@ -91,3 +78,19 @@ def extract_audios(updated_boundaries, wav_files, orig_folder, destination):
                     group_slice = audio[int(bounds[0]): int(bounds[1])]
                     group_slice.export(group_slice_dest, format="wav")
     print("Extraction completed.")
+
+
+def batch_retrieve(folder, orig_folder, destination):
+    tg = get_tg(folder)
+    info = get_group(tg)
+    boundaries = get_boundary(info)
+    boundaries = get_times(boundaries, tg)
+    wav_files = get_orig_filenames(orig_folder)
+    extract_audios(boundaries, wav_files, orig_folder, destination)
+
+
+my_dir = '/home/gustavo/Drive/Universidade/Dados/Projeto_Acomodacao/ALCP/media_files/intervals/'
+orig = '/home/gustavo/Drive/Universidade/Dados/Projeto_Acomodacao/ALCP/'
+dest = '/home/gustavo/Drive/Universidade/Dados/Projeto_Acomodacao/ALCP/media_files/final/'
+
+batch_retrieve(my_dir, orig, dest)

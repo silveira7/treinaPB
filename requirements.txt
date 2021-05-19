@@ -1,2 +1,2 @@
-pydub~=0.25.1
-pyenchant~=3.2.0
+pydub
+pyenchant
