@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # A snippet that I found in Stack Exchange
 # It basically formats XML code making line breaks and identations according to the XML tree structure
 

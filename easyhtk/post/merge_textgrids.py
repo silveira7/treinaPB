@@ -7,6 +7,8 @@ import os
 import sys
 
 
+# TODO Inserir variável posição do índice de grupo no nome do arquivo
+
 class TextGrid:
     """A class to store and manipulate .TextGrid data"""
 
@@ -48,9 +50,9 @@ class TextGrid:
                 print('Condition not isolated: OK')
                 # Get the first four information of file name (corpus, social profile, speaker's name and group ID)
                 # and store it as a string with underscores
-                speaker = "_".join(file.split(sep='_')[:3])
+                speaker = "_".join(file.split(sep='_')[:2])
                 # Store the group ID
-                group = file.split(sep='_')[3]
+                group = file.split(sep='_')[2]
                 # If the speaker of current file is not yet in self.data...
                 if speaker not in self.data.keys():
                     # Add speaker to data
@@ -75,7 +77,6 @@ class TextGrid:
         # For each file in each group of each speaker...
         for speaker in self.data.copy().keys():
             print('Getting info from content of files')
-            print(speaker)
             xmax = 0
             for group in self.data.copy()[speaker]:
                 for file in self.data.copy()[speaker][group]:
@@ -138,10 +139,8 @@ class TextGrid:
                 y = 1  # Variable to update interval number of 2nd tier
                 for file in self.data.copy()[speaker][group]:
                     print('Building TextGrid')
-                    print(speaker, group, file)
-                    for index, tier in enumerate(file):
-                        # print(index, tier)
 
+                    for index, tier in enumerate(file):
                         # If 1st tier
                         if index == 0:
                             # For each interval in 1st tier
@@ -227,9 +226,3 @@ class TextGrid:
                 if os.stat(self.folder + "/" + speaker + "_" + group + '_merged.TextGrid')[6] > 10**6:
                     print("File is too large")
                     sys.exit(1)
-
-
-tg = TextGrid('/home/gustavo/Drive/Universidade/Dados/Projeto_Acomodacao/ALCP/media_files/')
-
-tg.get_metadata()
-tg.build_tg()

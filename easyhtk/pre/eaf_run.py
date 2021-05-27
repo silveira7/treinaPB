@@ -3,6 +3,7 @@
 import sys
 from pathlib import Path
 import time
+
 from eaf import Eaf
 
 # TODO Fazer a checagem dos argumentos antes de processar os áudios

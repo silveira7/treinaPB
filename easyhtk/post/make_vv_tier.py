@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """This module automates the creation of VV tier from segment tier in TextGrids"""
 
 import re
@@ -11,8 +13,9 @@ def create_vv_tier(folder):
     files = sorted(os.listdir(folder))
 
     for file in files:
-        if 'Isolated' in file and '.TextGrid' in file:
-            print(file)
+        if 'merged.TextGrid' in file:
+                # or ('Isolated' in file and '.TextGrid' in file):
+
             # Import TextGrid
             with open(file) as opened_file:
                 tg = opened_file.readlines()
@@ -55,8 +58,10 @@ def create_vv_tier(folder):
             text = re.compile(r'\"(.*)\"')
 
             first_segment = re.search(text, phone_tier[13]).groups()[0]
-            print(file, first_segment)
-            second_segment = re.search(text, phone_tier[17]).groups()[0]
+            try:
+                second_segment = re.search(text, phone_tier[17]).groups()[0]
+            except IndexError:
+                print(file)
 
             if re.search(consonant, first_segment):
                 one_consonant_begin = True
@@ -154,6 +159,3 @@ def create_vv_tier(folder):
             new_tg = open(f'{folder}{file}', 'w')
             new_tg.write(final_tier.expandtabs(4))
             new_tg.close()
-
-
-create_vv_tier('/home/gustavo/Drive/Universidade/Dados/Projeto_Acomodacao/ALCP/media_files/final/isolat/')
