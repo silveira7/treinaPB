@@ -9,8 +9,10 @@ from pathlib import Path
 def fix_encoding(input_dir):
     tgs = list(Path(input_dir).glob('*.TextGrid'))
     labs = list(Path(input_dir).glob('*.lab'))
+    total = len(tgs)
 
-    for tg in tgs:
+    for index, tg in enumerate(tgs):
+        print(f'{index} from {total}')
         for lab in labs:
             if tg.name[:-9] == lab.name[:-4]:
                 with open(lab, 'r') as opened_file:

@@ -76,5 +76,5 @@ for file in eaf_files:
     except FileNotFoundError:
         print("Error 6: Cannot find " + wav_file.name)
 
-print("\neasyHTK finished.")
+print("\nProgram finished.")
 print("Time running: %s seconds." % (time.time() - start_time))

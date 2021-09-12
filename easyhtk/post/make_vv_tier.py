@@ -13,7 +13,9 @@ def create_vv_tier(folder):
     files = sorted(os.listdir(folder))
 
     for file in files:
+        #if 'Isolated' in file and '.TextGrid' in file:
         if 'merged.TextGrid' in file:
+            print(file)
                 # or ('Isolated' in file and '.TextGrid' in file):
 
             # Import TextGrid

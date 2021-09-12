@@ -10,5 +10,8 @@ def final_clean(input_dir):
             file.unlink()
 
         if 'Isolated' in file.name:
-            new_name = '_'.join(file.name.split(sep='_')[0:4]) + file.suffix
-            file.rename(file.parent / new_name)
+            if '.lab' in file.name:
+                file.unlink()
+            else:
+                new_name = '_'.join(file.name.split(sep='_')[0:4]) + file.suffix
+                file.rename(file.parent / new_name)

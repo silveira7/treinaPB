@@ -44,8 +44,7 @@ def _sample(input_dir, groups):
     directory_size = 0
     new_directory = p / 'selection'
     new_directory.mkdir(exist_ok=True)
-    # while directory_size < 1000 * 1000 * 1000:
-    while directory_size < 1000000:
+    while directory_size < 1000 * 1000 * 1000:
         for speaker in groups.keys():
             print(f'Sampling group from speaker {speaker}...')
             try:

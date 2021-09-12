@@ -1,1 +1,3 @@
-broken_encoding > merge_textgrids > make_vv_tier > retrieve_waves > final_clean
+broken_encoding > merge_textgrids > make_vv_tier (merged e isolated) > new_retrieve > pos_checker > 
+final_clean > filter_by_size > createChunkTier > insertBoundaries > fix_interval
+praat_from_python.py > merge_tabular_data

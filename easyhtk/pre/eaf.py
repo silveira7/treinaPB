@@ -481,7 +481,7 @@ class Eaf:
                     # Loop into current big group's annotations until the sum of their durations reach 8 seconds
                     # or until reach the last annotation
                     while x < len(parameters[1]) and \
-                            self.grouped[parameters[1][x]][end] - self.grouped[parameters[1][0]][begin] < 8000:
+                            self.grouped[parameters[1][x]][end] - self.grouped[parameters[1][0]][begin] < 5000:
                         x += 1
                     # If reach 8 seconds
                     if x < len(parameters[1]):
@@ -522,8 +522,8 @@ class Eaf:
         while True:
             # Check if there is at least one group that lasts more than 12 seconds
             for key, value in self.groups.items():
-                if key != "Isolated" and value[0] > 8000:
-                    if (value[0] - 8000) > 4000:
+                if key != "Isolated" and value[0] > 5000:
+                    if (value[0] - 5000) > 4000:
                         if len(value[1]) > 1:
                             self.big_groups.append(key)
                 else:

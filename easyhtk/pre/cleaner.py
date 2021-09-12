@@ -180,5 +180,5 @@ def cleaner(input_dir, output_dir):
     _delete_broken_audios(input_dir)
     _turn_one_line(input_dir)
     _first_clean(input_dir)
-    _check_words(input_dir, output_dir)
+    #_check_words(input_dir, output_dir)
     _remove_isol_letter(input_dir)
