@@ -4,10 +4,25 @@ This project is under GNU General Public License v3.0.
 
 # how to run?
 
-Clone the repository, open a terminal emulator and run:
+## Method 1
+
+1. Clone the repository
+2. Install the dependencies (see `setup.py`)
+3. Open a terminal emulator and run:
 
 ```
 $ python3 run.py -d <directory> -r <reference tier> -i <tiers to ignore>
+```
+
+## Method 2
+
+1. Download the binaries: [v1.0-alpha](https://github.com/silveira7/treinaPB/releases/tag/v1.0-alpha)
+2. Unzip the package
+3. Open a terminal emulator inside the unzipped folder
+4. Run:
+
+```
+$ ./run -d <directory> -r <reference tier> -i <tiers to ignore>
 ```
 
 # help
