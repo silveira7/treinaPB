@@ -1,0 +1,15 @@
+{
+    "errors": {
+        "1": "Error 1: No directory was specified.",
+        "2": "Error 2: The specified directory does not exist.",
+        "3": "Error 3: EAF files not found in the specified directory.",
+        "4": "Error 4: No reference tier was specified."
+    },
+    "interactions": {
+        "check_ignore": [
+            "No exception tier was specified. Do you want to continue? (yes or no)\n",
+            "You must enter 'yes' or 'no'!\n"
+        ]
+    }
+
+}
