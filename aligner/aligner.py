@@ -25,6 +25,7 @@ Aligner utilities
 
 import os
 import logging
+from sys import platform
 
 from re import match
 from tempfile import mkdtemp
@@ -38,11 +39,26 @@ from .utilities import opts2cfg, mkdir_p, \
 
 SRC = pathlib.Path(__file__).parent
 BASE = SRC.parent
-HTK_HCOMPV = BASE / "htk" / "HCompV"
-HTK_HVITE = BASE / "htk" / "HVite"
-HTK_HEREST = BASE / "htk" / "HERest"
-HTK_HHED = BASE / "htk" / "HHEd"
-HTK_HDLED = BASE / "htk" / "HLEd"
+
+if platform == "linux":
+    HTK_HCOMPV = BASE / "htk" / "linux" / "HCompV"
+    HTK_HVITE = BASE / "htk" / "linux" / "HVite"
+    HTK_HEREST = BASE / "htk" / "linux" / "HERest"
+    HTK_HHED = BASE / "htk" / "linux" / "HHEd"
+    HTK_HDLED = BASE / "htk" / "linux" / "HLEd"
+elif platform == "darwin":
+    HTK_HCOMPV = BASE / "htk" / "mac" / "HCompV"
+    HTK_HVITE = BASE / "htk" / "mac" / "HVite"
+    HTK_HEREST = BASE / "htk" / "mac" / "HERest"
+    HTK_HHED = BASE / "htk" / "mac" / "HHEd"
+    HTK_HDLED = BASE / "htk" / "mac" / "HLEd"
+elif platform == "win32":
+    HTK_HCOMPV = BASE / "htk" / "win" / "HCompV"
+    HTK_HVITE = BASE / "htk" / "win" / "HVite"
+    HTK_HEREST = BASE / "htk" / "win" / "HERest"
+    HTK_HHED = BASE / "htk" / "win" / "HHEd"
+    HTK_HDLED = BASE / "htk" / "win" / "HLEd"
+
 
 # regexp for parsing the HVite trace
 HVITE_SCORE = r".+==  \[\d+ frames\] (-\d+\.\d+)"

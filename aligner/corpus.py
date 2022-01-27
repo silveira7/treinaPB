@@ -26,6 +26,7 @@ Corpus utilities
 
 import os
 import logging
+from sys import platform
 
 from re import match, search, compile, sub
 from glob import glob
@@ -41,9 +42,19 @@ from .utilities import splitname, mkdir_p, opts2cfg, \
 
 SRC = pathlib.Path(__file__).parent
 BASE = SRC.parent
-HTK_HDMAN = BASE / "htk" / "HDMan"
-HTK_HDLED = BASE / "htk" / "HLEd"
-HTK_HCOPY = BASE / "htk" / "HCopy"
+
+if platform == "linux":
+    HTK_HDMAN = BASE / "htk" / "linux" / "HDMan"
+    HTK_HDLED = BASE / "htk" / "linux" / "HLEd"
+    HTK_HCOPY = BASE / "htk" / "linux" / "HCopy"
+elif platform == "darwin":
+    HTK_HDMAN = BASE / "htk" / "mac" / "HDMan"
+    HTK_HDLED = BASE / "htk" / "mac" / "HLEd"
+    HTK_HCOPY = BASE / "htk" / "mac" / "HCopy"
+elif platform == "win32":
+    HTK_HDMAN = BASE / "htk" / "win" / "HDMan"
+    HTK_HDLED = BASE / "htk" / "win" / "HLEd"
+    HTK_HCOPY = BASE / "htk" / "win" / "HCopy"
 
 # regexp for inspecting phones
 VALID_PHONE = r"^[^\d\s]+[0-9]?$"

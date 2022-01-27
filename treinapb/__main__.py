@@ -27,8 +27,14 @@ VAR = BASE / "var"
 HTK_CONFIG = VAR / "por.yaml"
 HTK_DICT = VAR / "dic.txt"
 HTK_MODEL = VAR / "model.zip"
-HTK_HDMAN = BASE / "htk" / "HTKTools" / "HDMan"
-PRAAT = BASE / "praat" / "praat"
+
+if sys.platform == "linux":
+    PRAAT = BASE / "praat" / "praat-linux"
+elif sys.platform == "darwin":
+    PRAAT = BASE / "praat" / "praat-mac.dmg"
+elif sys.platform == "win32":
+    PRAAT = BASE / "praat" / "praat-win.exe"
+
 PRAAT_SCRIPTS = SRC / "praat"
 PRAAT_TABLEOFREAL = SRC / "praat" / "BP.TableOfReal"
 DIRECTORY = None

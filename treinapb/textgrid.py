@@ -75,7 +75,7 @@ class TextGrid:
         tiers = []  # A list with two intervals like above
         # For each file in each group of each speaker...
         for speaker in self.data.copy().keys():
-            print('Getting info from content of files')
+
             xmax = 0
             for group in self.data.copy()[speaker]:
                 for file in self.data.copy()[speaker][group]:
