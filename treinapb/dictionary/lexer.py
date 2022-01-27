@@ -1,6 +1,6 @@
 import re
-import dictionary.Conversor as Conversor
-import dictionary.Parser as Parser
+import treinapb.dictionary.Conversor as Conversor
+import treinapb.dictionary.Parser as Parser
 
 
 def convert(text):

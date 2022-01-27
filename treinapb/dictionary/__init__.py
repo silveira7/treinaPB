@@ -1,7 +1,7 @@
 from pathlib import Path
 import re
-import dictionary.wordlist_extractor as wl
-import dictionary.lexer
+import treinapb.dictionary.wordlist_extractor as wl
+import treinapb.dictionary.lexer
 
 
 def gendict(inpath, outpath):
@@ -16,7 +16,7 @@ def gendict(inpath, outpath):
         # print(word)
         # phonetic_words.append(word + " " + lexer.convert(word))
         try:
-            phonetic_words.append(word + " " + dictionary.lexer.convert(word))
+            phonetic_words.append(word + " " + treinapb.dictionary.lexer.convert(word))
         except IndexError:
             print(word)
 

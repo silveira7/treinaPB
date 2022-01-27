@@ -1,10 +1,10 @@
-from dictionary.hash_map import *
+from treinapb.dictionary.hash_map import *
 from pathlib import Path
 import sys
 # import re, os
 # from treinaPB.dic.phoneme_rules import *
 # from treinaPB.dic.Word import *
-from dictionary.GramaticalClass import *
+from treinapb.dictionary.GramaticalClass import *
 # import string
 
 

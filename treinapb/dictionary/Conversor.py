@@ -1,4 +1,4 @@
-from dictionary.Word import *
+from treinapb.dictionary.Word import *
 import re
 import string
 

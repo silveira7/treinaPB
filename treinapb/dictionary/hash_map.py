@@ -1,6 +1,6 @@
 import os
 import json
-from dictionary.phoneme_rules import *
+from treinapb.dictionary.phoneme_rules import *
 
 # Class responsible for the exceptions dictionary
 

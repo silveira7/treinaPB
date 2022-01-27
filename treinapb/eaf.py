@@ -4,7 +4,7 @@ import json
 import sys
 from pathlib import Path
 from pydub import AudioSegment
-import pretty_xml
+import treinapb.pretty_xml
 
 
 class Eaf:
@@ -350,7 +350,7 @@ class Eaf:
             ).find("ANNOTATION_VALUE").text = parameters["annotation_value"]
 
         # Fix the format of the new XML/EAF code
-        pretty_xml.indent(self.xml)
+        treinapb.pretty_xml.indent(self.xml)
 
         # Create directory for eaf files
         eaf_folder = self.path.parent / "modified_eaf"
@@ -574,29 +574,27 @@ class Eaf:
         for group_id, parameters in groups.items():
             begin = self.tiers[self.reference_tier][parameters[1][0]]["begin_time_value"]
             end = self.tiers[self.reference_tier][parameters[1][-1]]["end_time_value"]
-            totaldur = end - begin
 
-            if 3000 < totaldur < 7000:
-                audio_cut = audio[begin:end]
-                filename = (
-                    audio_source.stem
-                    + "_"
-                    + str(group_id).zfill(3)
-                    + "_"
-                    + str(begin)
-                    + "_"
-                    + str(end)
-                )
-                filepath = chunks_directory / filename
-                text = ""
+            audio_cut = audio[begin:end]
+            filename = (
+                audio_source.stem
+                + "_"
+                + str(group_id).zfill(3)
+                + "_"
+                + str(begin)
+                + "_"
+                + str(end)
+            )
+            filepath = chunks_directory / filename
+            text = ""
 
-                for annotation_id in parameters[1]:
-                    text += " " + self.tiers[self.reference_tier][annotation_id]["annotation_value"]
+            for annotation_id in parameters[1]:
+                text += " " + self.tiers[self.reference_tier][annotation_id]["annotation_value"]
 
-                audio_cut.export(filepath.with_suffix(".wav"), format="wav", codec=codec)
+            audio_cut.export(filepath.with_suffix(".wav"), format="wav", codec=codec)
 
-                with open(filepath.with_suffix(".lab"), "w") as opened_file:
-                    opened_file.write(text)
+            with open(filepath.with_suffix(".lab"), "w") as opened_file:
+                opened_file.write(text)
 
 
 if __name__ == "__main__":
