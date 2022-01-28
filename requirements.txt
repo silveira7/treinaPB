@@ -1,9 +1,9 @@
-pydub
-pyenchant
-sly
-nltk
-termcolor
-pandas
+pydub>=0.25
+pyenchant>=3.2.0
+sly>=0.4
+nltk>=3.6.7
+termcolor>=1.1
+pandas>=1.4
 numpy>=1.12.0
 pyyaml>=4.2b1
 scipy>=0.18.1

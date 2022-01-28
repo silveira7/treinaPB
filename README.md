@@ -2,27 +2,52 @@
 
 This project is under GNU General Public License v3.0.
 
+# Dependencies
+
+- Python ≥ 3.9
+- ffmpeg ≥ 4.3.3
+- Hidden Markov Model Toolkit (HTK) ≥ 3.4.1
+
+The program depends on the following Python packages:
+- pydub ≥ 0.25
+- pyenchant ≥ 3.2.0
+- sly ≥ 0.4
+- nltk ≥ 3.6.7
+- termcolor ≥ 1.1
+- pandas ≥ 1.4
+- numpy ≥ 1.12.0
+- pyyaml ≥ 4.2b1
+- scipy ≥ 0.18.1
+- TextGrid ≥ 1.4
+
+To automatically install these packages, go to the project's main folder and run in the console:
+
+```
+pip install -r requirements.txt
+```
+
+The program also depends on the `punkt` NLTK data. To install directly in the command line, run:
+
+```
+python -m nltk.downloader punkt
+```
+
+Finally, a `pt_BR` (Brazilian Portuguese) dictionary also have to be installed in your computer. You can install it from one of these two providers: [hunspell](https://hunspell.github.io/) or [aspell](http://aspell.net/).
+
+If you use some Debian distribution of GNU/Linux, you can probably install the `pt_BR` dictionary using the package manager:
+
+```
+$ sudo apt-get install hunspell-pt-br
+```
+
 # how to run?
 
-## Method 1
-
 1. Clone the repository
-2. Install the dependencies (see `setup.py`)
+2. Install all the dependencies
 3. Open a terminal emulator and run:
 
 ```
 $ python3 run.py -d <directory> -r <reference tier> -i <tiers to ignore>
-```
-
-## Method 2
-
-1. Download the binaries: [v1.0-alpha](https://github.com/silveira7/treinaPB/releases/tag/v1.0-alpha)
-2. Unzip the package
-3. Open a terminal emulator inside the unzipped folder
-4. Run:
-
-```
-$ ./run -d <directory> -r <reference tier> -i <tiers to ignore>
 ```
 
 # help
