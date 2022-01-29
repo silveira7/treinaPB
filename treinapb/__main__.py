@@ -31,7 +31,7 @@ HTK_MODEL = VAR / "model.zip"
 if sys.platform == "linux":
     PRAAT = BASE / "praat" / "praat-linux"
 elif sys.platform == "darwin":
-    PRAAT = BASE / "praat" / "praat-mac.dmg"
+    PRAAT = BASE / "praat" / "praat-mac"
 elif sys.platform == "win32":
     PRAAT = BASE / "praat" / "praat-win.exe"
 
@@ -54,7 +54,7 @@ required_args.add_argument(
     help='path to the directory with recording (.wav) and trascription files (.eaf).')
 
 required_args.add_argument(
-    '-r','--reference',
+    '-r', '--reference',
     type=str,
     help='name of the reference tier in the transcription files.')
 
@@ -111,7 +111,6 @@ def check_ignore(ignore, msg):
 
 check_ignore(args.ignore, messages)
 IGNORE = args.ignore
-
 
 
 def run_eaf(directory, reference_tier, ignore, msg):
@@ -213,6 +212,7 @@ def main():
     run_dict(CHUNKS_DIR, HTK_DICT)
     run_htk(HTK_CONFIG, HTK_DICT, CHUNKS_DIR, HTK_MODEL)
     run_praat(CHUNKS_DIR, PRAAT, PRAAT_SCRIPTS)
+
 
 if __name__ == '__main__':
     main()
