@@ -11,6 +11,11 @@ The program was tested in a GNU/Linux operating system (Debian 11) using the fol
 - Hidden Markov Model Toolkit (HTK) 3.4.1
 - Praat 6.2.0.6
 
+If you don't have [Python 3](https://www.python.org/downloads/) or [ffmpeg](https://ffmpeg.org/download.html), install it. In Debian-based GNU/Linux:
+```
+apt install python3 ffmpeg
+```
+
 The program depends on the following Python packages:
 - pydub 0.25
 - pyenchant 3.2.0
@@ -26,31 +31,31 @@ The program depends on the following Python packages:
 To automatically install these packages, go to the project's main folder and run in the console:
 
 ```
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 The program also depends on the `punkt` NLTK data. To install it directly in the command line, run:
 
 ```
-python -m nltk.downloader punkt
+python3 -m nltk.downloader punkt
 ```
 
 Finally, a `pt_BR` (Brazilian Portuguese) dictionary also have to be installed in your computer. You can install it from one of these two providers: [hunspell](https://hunspell.github.io/) or [aspell](http://aspell.net/).
 
-If you use some Debian distribution of GNU/Linux, you can probably install the `pt_BR` dictionary using the package manager:
+If you're running a Debian-based distribution of GNU/Linux, it should be available on the `apt` repositories:
 
 ```
-$ sudo apt-get install hunspell-pt-br
+sudo apt install hunspell-pt-br
 ```
 
 ## How to run?
 
-1. Clone the repository
-2. Install all the dependencies
-3. Open a terminal emulator and run:
+1. Clone this repository
+1. Install all the dependencies
+1. Open a terminal emulator and run:
 
 ```
-$ python3 run.py -d <directory> -r <reference tier> -i <tiers to ignore>
+python3 run.py -d <directory> -r <reference tier> -i <tiers to ignore>
 ```
 
 ## Help
